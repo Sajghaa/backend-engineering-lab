@@ -1,17 +1,18 @@
 from fastapi import FastAPI
 from .database import engine, Base
-from .routers import todos
+from .routers import todos, auth
 
-# Create database tables
+# Create database tables (this will also create the users table)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Todo API",
-    description="Simple CRUD Todo API built with FastAPI",
-    version="1.0.0"
+    title="Todo API with JWT",
+    description="Secure Todo API with user authentication",
+    version="2.0.0"
 )
 
 app.include_router(todos.router)
+app.include_router(auth.router)
 
 @app.get("/")
 def root():

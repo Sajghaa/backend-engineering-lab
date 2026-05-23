@@ -1,14 +1,23 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
+from .security import get_password_hash, verify_password
 
 def get_todo(db: Session, todo_id: int):
     return db.query(models.Todo).filter(models.Todo.id == todo_id).first()
 
-def get_todos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Todo).offset(skip).limit(limit).all()
+def get_todo(db: Session, todo_id: int, owner_id: int):
+    return db.query(models.Todo).filter(
+        models.Todo.id == todo_id,
+        models.Todo.owner_id == owner_id
+    ).first()
 
-def create_todo(db: Session, todo: schemas.TodoCreate):
-    db_todo = models.Todo(title=todo.title, description=todo.description)
+
+def create_todo(db: Session, todo: schemas.TodoCreate, owner_id: int):
+    db_todo = models.Todo(
+        title=todo.title, 
+        description=todo.description,
+        owner_id=owner_id
+    )
     db.add(db_todo)
     db.commit()
     db.refresh(db_todo)
@@ -32,3 +41,23 @@ def delete_todo(db: Session, todo_id: int):
         db.commit()
         return True
     return False
+
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+def create_user(db: Session, user: schemas.UserCreate):
+    hashed_password = get_password_hash(user.password)
+    db_user = models.User(username=user.username, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = get_user_by_username(db, username)
+    if not user or not verify_password(password, user.hashed_password):
+        return None
+    return user

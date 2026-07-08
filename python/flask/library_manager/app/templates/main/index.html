@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Library Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="display-4">Welcome to Library Manager</h1>
+        <p class="lead">Organise your personal book collection.</p>
+        <hr>
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-book"></i> Total Books</h5>
+                    <p class="card-text display-6">{{ total }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-check-circle"></i> Read</h5>
+                    <p class="card-text display-6">{{ read }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-star"></i> Avg Rating</h5>
+                    <p class="card-text display-6">{{ avg_rating }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-clock"></i> To Read</h5>
+                    <p class="card-text display-6">{{ total - read }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if books %}
+        <div class="row mt-5">
+            <h3>Recently Added</h3>
+            {% for book in books %}
+                <div class="col-md-3">
+                    <div class="card mb-3">
+                        {% if book.cover_url %}
+                            <img src="{{ book.cover_url }}" class="card-img-top" alt="Cover" style="height:200px; object-fit:contain;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-muted">{{ book.author }}</p>
+                            <a href="{{ url_for('books.detail_book', book_id=book.id) }}" class="btn btn-sm btn-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% else %}
+    <div class="row mt-4">
+        <div class="col-md-6 offset-md-3 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Get Started</h5>
+                    <p class="card-text">Create an account or log in to manage your personal library.</p>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Register</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

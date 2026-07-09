@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}All Recipes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="fas fa-list"></i> All Recipes</h1>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('recipes.add_recipe') }}" class="btn btn-success"><i class="fas fa-plus"></i> Add Recipe</a>
+    {% endif %}
+</div>
+
+<!-- Search Form -->
+<form method="GET" class="row g-3 mb-4">
+    <div class="col-md-5">
+        {{ form.search(class="form-control", placeholder="Search by title...") }}
+    </div>
+    <div class="col-md-4">
+        {{ form.category(class="form-select") }}
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
+    </div>
+</form>
+
+<div class="row">
+    {% for recipe in recipes %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if recipe.image_filename %}
+                    <img src="{{ url_for('static', filename='uploads/' + recipe.image_filename) }}" class="card-img-top" alt="{{ recipe.title }}" style="height:200px; object-fit:cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:200px;">
+                        <i class="fas fa-image fa-4x text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.title }}</h5>
+                    <p class="card-text text-muted">
+                        <small><i class="fas fa-user"></i> {{ recipe.author.username }}</small>
+                    </p>
+                    {% if recipe.category %}
+                        <span class="badge bg-primary">{{ recipe.category|title }}</span>
+                    {% endif %}
+                    {% if recipe.prep_time or recipe.cook_time %}
+                        <span class="badge bg-info text-dark"><i class="fas fa-clock"></i> {{ recipe.prep_time or 0 }}+{{ recipe.cook_time or 0 }} min</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('recipes.detail_recipe', recipe_id=recipe.id) }}" class="btn btn-sm btn-primary">View</a>
+                    {% if current_user.is_authenticated and recipe.user_id == current_user.id %}
+                        <a href="{{ url_for('recipes.edit_recipe', recipe_id=recipe.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <p class="text-muted">No recipes found.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

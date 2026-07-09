@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Add Recipe{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Add New Recipe</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                        {% for error in form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3) }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.prep_time.label(class="form-label") }}
+                                {{ form.prep_time(class="form-control" + (" is-invalid" if form.prep_time.errors else "")) }}
+                                {% for error in form.prep_time.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.cook_time.label(class="form-label") }}
+                                {{ form.cook_time(class="form-control" + (" is-invalid" if form.cook_time.errors else "")) }}
+                                {% for error in form.cook_time.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.servings.label(class="form-label") }}
+                                {{ form.servings(class="form-control" + (" is-invalid" if form.servings.errors else "")) }}
+                                {% for error in form.servings.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.ingredients.label(class="form-label") }}
+                        {{ form.ingredients(class="form-control" + (" is-invalid" if form.ingredients.errors else ""), rows=5, placeholder="e.g. 200 g flour\n2 eggs\n1 cup milk") }}
+                        {% for error in form.ingredients.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        <small class="text-muted">One ingredient per line. Format: quantity unit name (e.g., "200 g flour")</small>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.instructions.label(class="form-label") }}
+                        {{ form.instructions(class="form-control" + (" is-invalid" if form.instructions.errors else ""), rows=6) }}
+                        {% for error in form.instructions.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.image.label(class="form-label") }}
+                        {{ form.image(class="form-control") }}
+                        {% for error in form.image.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-save"></i> Add Recipe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

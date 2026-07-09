@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        {% if recipe.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + recipe.image_filename) }}" class="img-fluid rounded" alt="{{ recipe.title }}">
+        {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:350px;">
+                <i class="fas fa-image fa-6x text-secondary"></i>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-7">
+        <h1>{{ recipe.title }}</h1>
+        <p class="text-muted">by {{ recipe.author.username }}</p>
+        <div class="mb-3">
+            {% if recipe.category %}
+                <span class="badge bg-primary">{{ recipe.category|title }}</span>
+            {% endif %}
+            {% if recipe.prep_time %}
+                <span class="badge bg-info text-dark"><i class="fas fa-clock"></i> Prep: {{ recipe.prep_time }} min</span>
+            {% endif %}
+            {% if recipe.cook_time %}
+                <span class="badge bg-info text-dark"><i class="fas fa-clock"></i> Cook: {{ recipe.cook_time }} min</span>
+            {% endif %}
+            {% if recipe.servings %}
+                <span class="badge bg-secondary"><i class="fas fa-users"></i> {{ recipe.servings }} servings</span>
+            {% endif %}
+        </div>
+        {% if recipe.description %}
+            <p class="lead">{{ recipe.description }}</p>
+        {% endif %}
+        
+        <h4>Ingredients</h4>
+        <ul class="list-group mb-3">
+            {% for name, quantity, unit in ingredients %}
+                <li class="list-group-item">
+                    {% if quantity or unit %}
+                        {{ quantity }} {{ unit }} 
+                    {% endif %}
+                    {{ name }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h4>Instructions</h4>
+        <p>{{ recipe.instructions|nl2br }}</p>
+
+        {% if current_user.is_authenticated %}
+            <div class="mt-4">
+                {% if recipe.user_id == current_user.id %}
+                    <a href="{{ url_for('recipes.edit_recipe', recipe_id=recipe.id) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fas fa-trash"></i> Delete</button>
+                {% endif %}
+                <form method="POST" action="{{ url_for('recipes.toggle_favourite', recipe_id=recipe.id) }}" style="display:inline;">
+                    <button type="submit" class="btn {% if is_favourite %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                        <i class="fas fa-heart"></i> {% if is_favourite %}Unfavourite{% else %}Favourite{% endif %}
+                    </button>
+                </form>
+                <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-secondary">Back to List</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete "{{ recipe.title }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('recipes.delete_recipe', recipe_id=recipe.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

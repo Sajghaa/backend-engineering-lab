@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" class="img-fluid rounded" alt="Cover">
+        {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:400px;">
+                <i class="fas fa-book fa-6x text-secondary"></i>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ book.title }}</h1>
+        <p class="lead">by {{ book.author }}</p>
+        <hr>
+        <p><strong>Genre:</strong> {{ book.genre or 'Not specified' }}</p>
+        <p><strong>Year:</strong> {{ book.year or 'N/A' }}</p>
+        <p><strong>ISBN:</strong> {{ book.isbn or 'N/A' }}</p>
+        <p>
+            <strong>Status:</strong>
+            <span class="badge 
+                {% if book.status == 'read' %}bg-success
+                {% elif book.status == 'reading' %}bg-warning text-dark
+                {% else %}bg-secondary{% endif %}">
+                {{ book.status.replace('-', ' ')|title }}
+            </span>
+        </p>
+        <p><strong>Rating:</strong> 
+            {% if book.rating > 0 %}
+                <span class="badge bg-warning text-dark"><i class="fas fa-star"></i> {{ book.rating }}/5</span>
+            {% else %}
+                <span class="text-muted">Not rated</span>
+            {% endif %}
+        </p>
+        <div class="mt-4">
+            <a href="{{ url_for('books.edit_book', book_id=book.id) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fas fa-trash"></i> Delete</button>
+            <a href="{{ url_for('books.list_books') }}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete "{{ book.title }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('books.delete_book', book_id=book.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

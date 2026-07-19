@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1><i class="fas fa-chart-pie"></i> Analytics Dashboard</h1>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Tasks</h5>
+                <p class="card-text display-6">{{ total_tasks }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Completed</h5>
+                <p class="card-text display-6">{{ completed_tasks }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Projects</h5>
+                <p class="card-text display-6">{{ projects|length }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Tasks by Status</div>
+            <div class="card-body">
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Recent Activity</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for activity in activities %}
+                        <li class="list-group-item">
+                            <strong>{{ activity.user.username }}</strong> {{ activity.action }}
+                            <span class="text-muted small float-end">{{ activity.timestamp|datetime }}</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">No recent activity</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Chart.js for status distribution
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    // We need to pass data from server
+    const labels = {{ columns_data|map(attribute=0)|list|tojson }};
+    const data = {{ columns_data|map(attribute=1)|list|tojson }};
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545', '#6c757d']
+            }]
+        }
+    });
+</script>
+{% endblock %}

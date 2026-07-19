@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board.name }} – {{ project.name }}{% endblock %}
+
+{% block head %}
+<!-- Additional styles for kanban -->
+<style>
+    .kanban-column {
+        min-height: 300px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 0 5px;
+    }
+    .task-card {
+        background: white;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: grab;
+        transition: 0.2s;
+    }
+    .task-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .task-card:active { cursor: grabbing; }
+    .task-priority-low { border-left: 4px solid green; }
+    .task-priority-medium { border-left: 4px solid orange; }
+    .task-priority-high { border-left: 4px solid red; }
+    .column-header {
+        font-weight: bold;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="fas fa-columns"></i> {{ board.name }}</h1>
+    <div>
+        <a href="{{ url_for('tasks.add_task', column_id=columns[0].id if columns else 0) }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Task
+        </a>
+        <a href="{{ url_for('projects.detail_project', project_id=project.id) }}" class="btn btn-secondary">Back to Project</a>
+    </div>
+</div>
+
+<div class="row" id="kanban-board" data-board-id="{{ board.id }}">
+    {% for column in columns %}
+        <div class="col-md-4">
+            <div class="kanban-column" data-column-id="{{ column.id }}">
+                <div class="column-header">{{ column.name }}</div>
+                <div class="task-list" data-column-id="{{ column.id }}">
+                    {% for task in column.tasks|sort(attribute='order') %}
+                        <div class="task-card task-priority-{{ task.priority }}" data-task-id="{{ task.id }}">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ task.title }}</strong>
+                                <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'success' }}">
+                                    {{ task.priority }}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                {% if task.assignee %}
+                                    <i class="fas fa-user"></i> {{ task.assignee.username }}
+                                {% endif %}
+                                {% if task.due_date %}
+                                    <i class="fas fa-calendar"></i> {{ task.due_date|datetime }}
+                                {% endif %}
+                            </small>
+                            <div class="mt-1">
+                                <a href="{{ url_for('tasks.detail_task', task_id=task.id) }}" class="btn btn-sm btn-primary">View</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // SocketIO connection
+    const boardId = {{ board.id }};
+    const socket = io('', { query: 'board_id=' + boardId });
+
+    socket.on('connect', function() {
+        console.log('Connected to board room');
+    });
+
+    // Listen for task updates
+    socket.on('task_moved', function(data) {
+        // Move the task card to the new column
+        const taskCard = document.querySelector(`.task-card[data-task-id="${data.task_id}"]`);
+        if (taskCard) {
+            const targetList = document.querySelector(`.task-list[data-column-id="${data.to_column_id}"]`);
+            if (targetList) {
+                targetList.appendChild(taskCard);
+            }
+        }
+    });
+
+    socket.on('task_added', function(data) {
+        if (data.board_id === boardId) {
+            // Reload page to see new task (or append dynamically)
+            location.reload();
+        }
+    });
+
+    // SortableJS drag-and-drop
+    document.querySelectorAll('.task-list').forEach(list => {
+        Sortable.create(list, {
+            group: 'tasks',
+            animation: 150,
+            onEnd: function(evt) {
+                const taskId = evt.item.dataset.taskId;
+                const fromColumn = evt.from.dataset.columnId;
+                const toColumn = evt.to.dataset.columnId;
+                const newOrder = Array.from(evt.to.children).indexOf(evt.item);
+                // Send update to server via AJAX
+                fetch(`/boards/{{ board.id }}/reorder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        items: [
+                            { id: taskId, column_id: toColumn, order: newOrder }
+                        ]
+                    })
+                }).then(response => response.json()).then(data => {
+                    if (data.status === 'ok') {
+                        // Optionally show feedback
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

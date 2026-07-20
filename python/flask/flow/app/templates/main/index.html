@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Home – Flow{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="display-4">Welcome to Flow</h1>
+        <p class="lead">Your smart team workspace for projects, tasks, and collaboration.</p>
+        <hr>
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Your Recent Projects</h3>
+            <div class="row">
+                {% for project in projects %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ project.name }}</h5>
+                                <p class="card-text">{{ project.description|truncate(100) if project.description else '' }}</p>
+                                <p class="text-muted"><small>Created by {{ project.creator.username }}</small></p>
+                                <a href="{{ url_for('projects.detail_project', project_id=project.id) }}" class="btn btn-primary">View Project</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12"><p>You're not part of any projects. <a href="{{ url_for('projects.create_project') }}">Create one now!</a></p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row mt-4">
+        <div class="col-md-6 offset-md-3 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Get Started</h5>
+                    <p>Sign up to manage your projects with ease.</p>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-success">Register</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

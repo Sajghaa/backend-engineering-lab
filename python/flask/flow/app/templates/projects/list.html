@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}My Projects{% endblock %}
+{% block content %}
+<h1><i class="fas fa-folder-open"></i> My Projects</h1>
+<a href="{{ url_for('projects.create_project') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> New Project</a>
+<div class="row">
+    {% for project in projects %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.name }}</h5>
+                    <p class="card-text">{{ project.description|truncate(100) }}</p>
+                    <p class="text-muted"><small>Created: {{ project.created_at|datetime }}</small></p>
+                    <a href="{{ url_for('projects.detail_project', project_id=project.id) }}" class="btn btn-primary">Open</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12"><p>No projects yet. <a href="{{ url_for('projects.create_project') }}">Create your first project</a></p></div>
+    {% endfor %}
+</div>
+{% endblock %}

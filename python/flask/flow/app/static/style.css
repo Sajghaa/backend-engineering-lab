@@ -1,0 +1,23 @@
+body {
+    background-color: #f4f7fa;
+}
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+.kanban-column {
+    background: #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+}
+.task-card {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+.task-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}

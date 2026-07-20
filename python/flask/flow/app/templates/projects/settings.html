@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Project Settings{% endblock %}
+{% block content %}
+<h1>Settings: {{ project.name }}</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Edit Project</div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.members.label(class="form-label") }}
+                        {{ form.members(class="form-select") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Current Members</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>{{ project.creator.username }}</strong> (Creator)</li>
+                {% for member in project.members %}
+                    <li class="list-group-item">{{ member.username }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<a href="{{ url_for('projects.detail_project', project_id=project.id) }}" class="btn btn-secondary mt-3">Back to Project</a>
+{% endblock %}

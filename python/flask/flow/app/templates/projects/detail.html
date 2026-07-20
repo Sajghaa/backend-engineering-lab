@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>{{ project.name }}</h1>
+    <div>
+        <a href="{{ url_for('projects.project_settings', project_id=project.id) }}" class="btn btn-secondary"><i class="fas fa-cog"></i> Settings</a>
+        <a href="{{ url_for('boards.view_board', board_id=project.boards[0].id) }}" class="btn btn-primary">Open Board</a>
+    </div>
+</div>
+<p>{{ project.description or 'No description.' }}</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Boards</h4>
+        <ul class="list-group">
+            {% for board in project.boards %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('boards.view_board', board_id=board.id) }}">{{ board.name }}</a>
+                    <span class="badge bg-secondary">{{ board.columns|length }} columns</span>
+                </li>
+            {% else %}
+                <li class="list-group-item">No boards yet.</li>
+            {% endfor %}
+        </ul>
+        <form method="POST" action="{{ url_for('projects.add_board', project_id=project.id) }}" class="mt-2">
+            <div class="input-group">
+                <input type="text" name="name" class="form-control" placeholder="New board name">
+                <button type="submit" class="btn btn-outline-primary">Add Board</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h4>Team Members</h4>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>{{ project.creator.username }}</strong> (Creator)</li>
+            {% for member in project.members %}
+                <li class="list-group-item">{{ member.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

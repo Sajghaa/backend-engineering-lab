@@ -71,3 +71,24 @@ def project_settings(project_id):
         flash('Project updated!', 'success')
         return redirect(url_for('projects.detail_project', project_id=project.id))
     return render_template('projects/settings.html', form=form, project=project)
+
+@projects_bp.route('/<int:project_id>/add_board', methods=['POST'])
+@login_required
+def add_board(project_id):
+    project = Project.query.get_or_404(project_id)
+    if project.created_by != current_user.id and current_user not in project.members:
+        abort(403)
+    name = request.form.get('name')
+    if name:
+        board = Board(name=name, project_id=project.id)
+        db.session.add(board)
+        db.session.commit()
+        # Create default columns
+        for col_name in ['To Do', 'In Progress', 'Done']:
+            col = Column(name=col_name, board_id=board.id, order=0)
+            db.session.add(col)
+        db.session.commit()
+        flash('Board added.', 'success')
+    else:
+        flash('Board name required.', 'danger')
+    return redirect(url_for('projects.detail_project', project_id=project.id))

@@ -4,6 +4,7 @@ from app.models import Project
 from app.blueprints.main import main_bp
 
 @main_bp.route('/')
+@main_bp.route('/index')
 def index():
     if current_user.is_authenticated:
         projects = Project.query.filter(
@@ -13,11 +14,3 @@ def index():
     else:
         projects = []
     return render_template('main/index.html', projects=projects)
-
-@main_bp.route('/about')
-def about():
-    return render_template('main/about.html')
-
-@main_bp.route('/favicon.ico')
-def favicon():
-    return '', 204

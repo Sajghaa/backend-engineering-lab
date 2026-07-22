@@ -4,6 +4,7 @@ from sqlalchemy import func
 from app.extensions import db
 from app.models import Project, Task, Activity
 from app.blueprints.dashboard import dashboard_bp
+from app.models import Column
 
 @dashboard_bp.route('/')
 @login_required

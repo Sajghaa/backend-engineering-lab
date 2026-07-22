@@ -1,7 +1,7 @@
 from flask import render_template
 from flask_login import current_user
 from app.models import Project
-from app.blueprints.main import main_bp
+from . import main_bp
 
 @main_bp.route('/')
 @main_bp.route('/index')
